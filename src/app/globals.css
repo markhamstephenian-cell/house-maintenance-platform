@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brown-50: #faf6f1;
+  --color-brown-100: #f0e6d6;
+  --color-brown-200: #e0ccad;
+  --color-brown-300: #cba97a;
+  --color-brown-400: #b88c55;
+  --color-brown-500: #a67542;
+  --color-brown-600: #8d5f36;
+  --color-brown-700: #74492e;
+  --color-brown-800: #5e3c2b;
+  --color-brown-900: #4e3326;
+
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e3a5f;
+  --color-blue-900: #1a2e4a;
+
+  --color-cream: #fdfaf5;
+  --color-sand: #f5efe6;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: #2d2418;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+@keyframes door-open {
+  0% { transform: perspective(800px) rotateY(0deg); }
+  100% { transform: perspective(800px) rotateY(-105deg); }
+}
+
+.door-panel {
+  transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.door-open .door-panel {
+  animation: door-open 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
