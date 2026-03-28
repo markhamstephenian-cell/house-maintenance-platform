@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Rounded rectangle background -->
+  <rect x="0" y="0" width="512" height="512" rx="64" ry="64" fill="#f5e6d3"/>
+
+  <!-- House body -->
+  <rect x="136" y="256" width="240" height="176" fill="#8d5f36"/>
+
+  <!-- Roof (triangle) -->
+  <polygon points="256,96 96,272 416,272" fill="#8d5f36"/>
+
+  <!-- Door -->
+  <rect x="224" y="320" width="64" height="112" rx="4" ry="4" fill="#2563eb"/>
+
+  <!-- Door knob -->
+  <circle cx="276" cy="380" r="6" fill="#f5e6d3"/>
+</svg>
