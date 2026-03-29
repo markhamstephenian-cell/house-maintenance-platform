@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { generateSlug } from "@/lib/slug";
+import { normalizeAddress, generateSlug } from "@/lib/slug";
 import { DEFAULT_TASKS, FREQUENCY_DAYS } from "@/lib/default-tasks";
 import { v4 as uuid } from "uuid";
 
@@ -13,6 +13,17 @@ export async function POST(request: NextRequest) {
   }
 
   const db = getDb();
+
+  // Check if a house with the same normalized address already exists
+  const normalized = normalizeAddress(address);
+  const existing = db
+    .prepare("SELECT slug FROM houses WHERE slug = ?")
+    .get(normalized) as { slug: string } | undefined;
+
+  if (existing) {
+    return NextResponse.json({ slug: existing.slug }, { status: 200 });
+  }
+
   const slug = generateSlug(address);
   const houseId = uuid();
 

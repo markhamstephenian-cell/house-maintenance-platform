@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 
-export function generateSlug(address: string): string {
+export function normalizeAddress(address: string): string {
   let slug = address
     .toLowerCase()
     .trim()
@@ -9,7 +9,11 @@ export function generateSlug(address: string): string {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
-  if (!slug) slug = "house";
+  return slug || "house";
+}
+
+export function generateSlug(address: string): string {
+  const slug = normalizeAddress(address);
 
   const db = getDb();
   const existing = db
