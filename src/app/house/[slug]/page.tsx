@@ -36,6 +36,12 @@ export default function HouseDashboard() {
       setTasks(data.tasks);
       setContractors(data.contractors);
       setError("");
+      // Remember this house so the landing page door can show the address
+      try {
+        localStorage.setItem("lastHouseSlug", data.house.slug);
+        localStorage.setItem("lastHouseAddress", data.house.address);
+      } catch {}
+
     } catch {
       setError("Could not connect to the server.");
     } finally {
@@ -45,6 +51,10 @@ export default function HouseDashboard() {
 
   useEffect(() => {
     fetchData();
+
+    // Poll every 30 seconds so multiple users see each other's changes
+    const interval = setInterval(fetchData, 30_000);
+    return () => clearInterval(interval);
   }, [fetchData]);
 
   if (loading) {

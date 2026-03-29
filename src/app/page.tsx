@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
@@ -9,6 +9,13 @@ export default function LandingPage() {
   const [error, setError] = useState("");
   const [doorOpen, setDoorOpen] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("lastHouseAddress");
+      if (saved) setAddress(saved);
+    } catch {}
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

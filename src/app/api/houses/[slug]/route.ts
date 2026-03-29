@@ -21,5 +21,7 @@ export async function GET(
     .prepare("SELECT * FROM contractors WHERE house_id = ? ORDER BY name")
     .all((house as { id: string }).id);
 
-  return NextResponse.json({ house, tasks, contractors });
+  return NextResponse.json({ house, tasks, contractors }, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }
