@@ -21,19 +21,29 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  function getStatus(task: Task): "overdue" | "upcoming" | "ok" | "none" {
+  function isRecentlyCompleted(task: Task): boolean {
+    if (!task.last_completed_date) return false;
+    const d = new Date(task.last_completed_date);
+    const sevenAgo = new Date(today);
+    sevenAgo.setDate(sevenAgo.getDate() - 7);
+    return d >= sevenAgo && d <= today;
+  }
+
+  function getStatus(task: Task): "overdue" | "upcoming" | "ok" | "done" | "none" {
     if (!task.next_due_date) return "none";
     const d = new Date(task.next_due_date);
     if (d < today) return "overdue";
+    if (isRecentlyCompleted(task)) return "done";
     const thirtyAhead = new Date(today);
     thirtyAhead.setDate(thirtyAhead.getDate() + 30);
     if (d <= thirtyAhead) return "upcoming";
     return "ok";
   }
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     overdue: "border-l-red-500 bg-red-50/50",
     upcoming: "border-l-blue-500 bg-blue-50/30",
+    done: "border-l-green-500 bg-green-50/40",
     ok: "border-l-green-500 bg-white",
     none: "border-l-gray-300 bg-white",
   };
@@ -102,7 +112,15 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-brown-800">{task.name}</span>
+                      <span className={`font-medium ${status === "done" ? "text-green-800" : "text-brown-800"}`}>{task.name}</span>
+                      {status === "done" && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Done {new Date(task.last_completed_date!).toLocaleDateString()}
+                        </span>
+                      )}
                       {status === "overdue" && (
                         <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">Overdue</span>
                       )}
@@ -110,11 +128,16 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
                         <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">Due soon</span>
                       )}
                     </div>
+                    {status === "done" && task.next_due_date && (
+                      <p className="text-xs font-medium text-green-700 mt-1">
+                        Next needs attention: {new Date(task.next_due_date).toLocaleDateString()}
+                      </p>
+                    )}
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-brown-400">
-                      {task.last_completed_date && (
+                      {status !== "done" && task.last_completed_date && (
                         <span>Last done: {new Date(task.last_completed_date).toLocaleDateString()}</span>
                       )}
-                      {task.next_due_date && (
+                      {status !== "done" && task.next_due_date && (
                         <span>Next due: {new Date(task.next_due_date).toLocaleDateString()}</span>
                       )}
                       {contractor && (
