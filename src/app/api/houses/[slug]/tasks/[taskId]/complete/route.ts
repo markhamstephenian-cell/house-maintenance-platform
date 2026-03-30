@@ -3,7 +3,7 @@ import { getDb } from "@/lib/db";
 import { FREQUENCY_DAYS } from "@/lib/default-tasks";
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string; taskId: string }> }
 ) {
   const { slug, taskId } = await params;
@@ -17,12 +17,19 @@ export async function POST(
   } | undefined;
   if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
-  const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  // Use the client's local date to avoid UTC timezone mismatch
+  let todayStr: string;
+  try {
+    const body = await request.json();
+    todayStr = body.completedDate;
+  } catch {
+    todayStr = new Date().toISOString().split("T")[0];
+  }
   const days = FREQUENCY_DAYS[task.frequency as keyof typeof FREQUENCY_DAYS] || 30;
-  const nextDue = new Date(today);
-  nextDue.setDate(nextDue.getDate() + days);
-  const nextDueStr = nextDue.toISOString().split("T")[0];
+  const [y, m, d] = todayStr.split("-").map(Number);
+  const todayDate = new Date(y, m - 1, d);
+  todayDate.setDate(todayDate.getDate() + days);
+  const nextDueStr = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, "0")}-${String(todayDate.getDate()).padStart(2, "0")}`;
 
   db.prepare(
     `UPDATE tasks SET last_completed_date = ?, next_due_date = ?, updated_at = datetime('now')

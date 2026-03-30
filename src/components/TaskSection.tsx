@@ -55,8 +55,14 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   };
 
   async function handleComplete(taskId: string) {
+    const now = new Date();
+    const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     try {
-      const res = await fetch(`/api/houses/${slug}/tasks/${taskId}/complete`, { method: "POST" });
+      const res = await fetch(`/api/houses/${slug}/tasks/${taskId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completedDate: localDate }),
+      });
       if (!res.ok) {
         alert("Failed to mark task as done. Please try again.");
         return;
