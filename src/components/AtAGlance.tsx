@@ -11,6 +11,12 @@ interface Props {
 export default function AtAGlance({ tasks }: Props) {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
+  // Parse "YYYY-MM-DD" as local midnight instead of UTC midnight
+  function parseDate(dateStr: string): Date {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const thirtyAgo = new Date(today);
@@ -20,19 +26,19 @@ export default function AtAGlance({ tasks }: Props) {
 
   const completedTasks = tasks.filter((t) => {
     if (!t.last_completed_date) return false;
-    const d = new Date(t.last_completed_date);
+    const d = parseDate(t.last_completed_date);
     return d >= thirtyAgo && d <= today;
   });
 
   const upcomingTasks = tasks.filter((t) => {
     if (!t.next_due_date) return false;
-    const d = new Date(t.next_due_date);
+    const d = parseDate(t.next_due_date);
     return d >= today && d <= thirtyAhead;
   });
 
   const overdueTasks = tasks.filter((t) => {
     if (!t.next_due_date) return false;
-    const d = new Date(t.next_due_date);
+    const d = parseDate(t.next_due_date);
     return d < today;
   });
 
@@ -79,8 +85,8 @@ export default function AtAGlance({ tasks }: Props) {
                 <div className="min-w-0">
                   <p className="text-brown-700 truncate">{t.name}</p>
                   <p className="text-xs text-brown-400">
-                    {freqLabel(t.frequency)} &middot; Completed {new Date(t.last_completed_date!).toLocaleDateString()}
-                    {t.next_due_date && <> &middot; Next: {new Date(t.next_due_date).toLocaleDateString()}</>}
+                    {freqLabel(t.frequency)} &middot; Completed {parseDate(t.last_completed_date!).toLocaleDateString()}
+                    {t.next_due_date && <> &middot; Next: {parseDate(t.next_due_date).toLocaleDateString()}</>}
                   </p>
                 </div>
               </div>
@@ -122,7 +128,7 @@ export default function AtAGlance({ tasks }: Props) {
                 <div className="min-w-0">
                   <p className="text-brown-700 truncate">{t.name}</p>
                   <p className="text-xs text-brown-400">
-                    {freqLabel(t.frequency)} &middot; Due {new Date(t.next_due_date!).toLocaleDateString()}
+                    {freqLabel(t.frequency)} &middot; Due {parseDate(t.next_due_date!).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -164,7 +170,7 @@ export default function AtAGlance({ tasks }: Props) {
                 <div className="min-w-0">
                   <p className="text-brown-700 truncate">{t.name}</p>
                   <p className="text-xs text-brown-400">
-                    {freqLabel(t.frequency)} &middot; Was due {new Date(t.next_due_date!).toLocaleDateString()}
+                    {freqLabel(t.frequency)} &middot; Was due {parseDate(t.next_due_date!).toLocaleDateString()}
                   </p>
                 </div>
               </div>

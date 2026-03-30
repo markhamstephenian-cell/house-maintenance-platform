@@ -18,12 +18,18 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
 
+  // Parse "YYYY-MM-DD" as local midnight instead of UTC midnight
+  function parseDate(dateStr: string): Date {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   function isRecentlyCompleted(task: Task): boolean {
     if (!task.last_completed_date) return false;
-    const d = new Date(task.last_completed_date);
+    const d = parseDate(task.last_completed_date);
     const sevenAgo = new Date(today);
     sevenAgo.setDate(sevenAgo.getDate() - 7);
     return d >= sevenAgo && d <= today;
@@ -32,7 +38,7 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   function getStatus(task: Task): "overdue" | "upcoming" | "ok" | "done" | "none" {
     if (isRecentlyCompleted(task)) return "done";
     if (!task.next_due_date) return "none";
-    const d = new Date(task.next_due_date);
+    const d = parseDate(task.next_due_date);
     if (d < today) return "overdue";
     const thirtyAhead = new Date(today);
     thirtyAhead.setDate(thirtyAhead.getDate() + 30);
@@ -127,7 +133,7 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
-                          Done {new Date(task.last_completed_date!).toLocaleDateString()}
+                          Done {parseDate(task.last_completed_date!).toLocaleDateString()}
                         </span>
                       )}
                       {status === "overdue" && (
@@ -139,15 +145,15 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
                     </div>
                     {status === "done" && task.next_due_date && (
                       <p className="text-xs font-medium text-green-700 mt-1">
-                        Next needs attention: {new Date(task.next_due_date).toLocaleDateString()}
+                        Next needs attention: {parseDate(task.next_due_date).toLocaleDateString()}
                       </p>
                     )}
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-brown-400">
                       {status !== "done" && task.last_completed_date && (
-                        <span>Last done: {new Date(task.last_completed_date).toLocaleDateString()}</span>
+                        <span>Last done: {parseDate(task.last_completed_date).toLocaleDateString()}</span>
                       )}
                       {status !== "done" && task.next_due_date && (
-                        <span>Next due: {new Date(task.next_due_date).toLocaleDateString()}</span>
+                        <span>Next due: {parseDate(task.next_due_date).toLocaleDateString()}</span>
                       )}
                       {contractor && (
                         <span className="text-blue-600">{contractor.name} ({contractor.service_type})</span>
