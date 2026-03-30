@@ -30,10 +30,10 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   }
 
   function getStatus(task: Task): "overdue" | "upcoming" | "ok" | "done" | "none" {
+    if (isRecentlyCompleted(task)) return "done";
     if (!task.next_due_date) return "none";
     const d = new Date(task.next_due_date);
     if (d < today) return "overdue";
-    if (isRecentlyCompleted(task)) return "done";
     const thirtyAhead = new Date(today);
     thirtyAhead.setDate(thirtyAhead.getDate() + 30);
     if (d <= thirtyAhead) return "upcoming";
@@ -49,7 +49,16 @@ export default function TaskSection({ slug, frequency, tasks, contractors, onRef
   };
 
   async function handleComplete(taskId: string) {
-    await fetch(`/api/houses/${slug}/tasks/${taskId}/complete`, { method: "POST" });
+    try {
+      const res = await fetch(`/api/houses/${slug}/tasks/${taskId}/complete`, { method: "POST" });
+      if (!res.ok) {
+        alert("Failed to mark task as done. Please try again.");
+        return;
+      }
+    } catch {
+      alert("Could not connect to the server. Please try again.");
+      return;
+    }
     onRefresh();
   }
 
